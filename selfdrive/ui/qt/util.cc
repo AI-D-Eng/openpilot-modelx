@@ -14,7 +14,7 @@ QString getVersion() {
 }
 
 QString getBrand() {
-  return Params().getBool("Passive") ? "dashcam" : "Tinkla OP";
+  return Params().getBool("Passive") ? "dashcam" : "ModelX OP";
 }
 
 QString getBrandVersion() {
