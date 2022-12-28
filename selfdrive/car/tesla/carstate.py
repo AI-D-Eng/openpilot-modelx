@@ -25,7 +25,7 @@ class CarState(CarStateBase):
     # Needed by carcontroller
     self.msg_stw_actn_req = None
 
-    
+
 
     self.das_steeringControl_counter = -1
     self.das_status_counter = -1
@@ -138,10 +138,10 @@ class CarState(CarStateBase):
     self.pedal_interceptor_value2 = 0.0
     self.ibstBrakeApplied = False
     self.teslaModel = ""
-    if CP.carFingerprint in [CAR.AP1_MODELX]:
-      self.teslaModel = "S"
-    elif CP.carFingerprint in [CAR.AP1_MODELS, CAR.PREAP_MODELS, CAR.AP2_MODELS]:
+    if CP.carFingerprint in [CAR.AP1_MODELX,CAR.AP2_MODELX]:
       self.teslaModel = "X"
+    elif CP.carFingerprint in [CAR.AP1_MODELS, CAR.PREAP_MODELS, CAR.AP2_MODELS]:
+      self.teslaModel = "S"
     self.teslaModelDetected = 0
     self.realPedalValue = 0.0
 
@@ -204,8 +204,8 @@ class CarState(CarStateBase):
       unit=WHEEL_RADIUS,
     )
 
-    
-      
+
+
     # Brake pedal
     ret.brake = 0
     if self.has_ibooster_ecu:
@@ -216,7 +216,7 @@ class CarState(CarStateBase):
       self.realBrakePressed = bool(cp.vl["BrakeMessage"]["driverBrakeStatus"] != 1)
     ret.brakePressed = self.realBrakePressed
     # Steering wheel
-    
+
     self.steer_warning = self.can_define.dv["EPAS_sysStatus"]["EPAS_eacErrorCode"].get(int(cp.vl["EPAS_sysStatus"]["EPAS_eacErrorCode"]), None)
     steer_status = self.can_define.dv["EPAS_sysStatus"]["EPAS_eacStatus"].get(int(cp.vl["EPAS_sysStatus"]["EPAS_eacStatus"]), None)
     ret.steeringAngleDeg = -cp.vl["EPAS_sysStatus"]["EPAS_internalSAS"]
@@ -266,9 +266,9 @@ class CarState(CarStateBase):
       eac_status = self.can_define.dv["DAS_pscControl"]["DAS_eacState"].get(int(cp_cam.vl["DAS_pscControl"]["DAS_eacState"]), None)
       autopark_status = self.can_define.dv["DAS_pscControl"]["DAS_pscParkState"].get(int(cp_cam.vl["DAS_pscControl"]["DAS_pscParkState"]), None)
     summon_or_autopark_enabled = (
-        eac_status in ["EAC_ACTIVE"] 
-        or autopark_status in ["SUMMON", "COMPLETE", "ABORT", "PARALLEL_PULL_OUT_TO_RIGHT", 
-        "PARALLEL_PULL_OUT_TO_LEFT", "PARK_RIGHT_CROSS", "PARK_RIGHT_PARALLEL", 
+        eac_status in ["EAC_ACTIVE"]
+        or autopark_status in ["SUMMON", "COMPLETE", "ABORT", "PARALLEL_PULL_OUT_TO_RIGHT",
+        "PARALLEL_PULL_OUT_TO_LEFT", "PARK_RIGHT_CROSS", "PARK_RIGHT_PARALLEL",
         "PARK_LEFT_CROSS", "PARK_LEFT_PARALLEL"]
     )
     self.cruise_state = cp.vl["DI_state"]["DI_cruiseState"]
@@ -285,7 +285,7 @@ class CarState(CarStateBase):
       ret.followDistanceS = int(self.cruise_distance/33)
     else:
       ret.followDistanceS = 255
-    
+
     if (self.CP.carFingerprint != CAR.PREAP_MODELS):
       acc_enabled = (cruise_state in ["ENABLED", "STANDSTILL", "OVERRIDE", "PRE_FAULT", "PRE_CANCEL"])
       self.autopilot_enabled = (autopilot_status in ["ACTIVE_1", "ACTIVE_2"]) #, "ACTIVE_NAVIGATE_ON_AUTOPILOT"])
@@ -316,7 +316,7 @@ class CarState(CarStateBase):
     msu = cp.vl['UI_gpsVehicleSpeed']["UI_mapSpeedLimitUnits"]
     map_speed_uom_to_ms = CV.KPH_TO_MS if msu == 1 else CV.MPH_TO_MS
     map_speed_ms_to_uom = CV.MS_TO_KPH if msu == 1 else CV.MS_TO_MPH
-    
+
     speed_limit_type = int(cp.vl["UI_driverAssistMapData"]["UI_mapSpeedLimit"])
     rdSignMsg = cp.vl["UI_driverAssistRoadSign"]["UI_roadSign"]
     if rdSignMsg == 3: # ROAD_SIGN_SPEED_LIMIT
@@ -341,7 +341,7 @@ class CarState(CarStateBase):
         self.map_suggested_speed = max(
             self.mapBasedSuggestedSpeed, self.splineBasedSuggestedSpeed
         )
-    if self.CP.carFingerprint in [CAR.AP1_MODELS, CAR.AP1_MODELX, CAR.AP2_MODELS]:
+    if self.CP.carFingerprint in [CAR.AP1_MODELS, CAR.AP1_MODELX, CAR.AP2_MODELS,CAR.AP2_MODELX]:
       self.speed_limit_ms_das = cp_cam.vl["DAS_status"]["DAS_fusedSpeedLimit"] / map_speed_ms_to_uom
       if cp_cam.vl["DAS_status"]["DAS_fusedSpeedLimit"] >= 150:
         #set to zero for no speed limit (0x1E) or SNA ((0x1F)
@@ -354,7 +354,7 @@ class CarState(CarStateBase):
       self.DAS_fusedSpeedLimit = cp_cam.vl["DAS_status"]["DAS_fusedSpeedLimit"]
     else:
       self.DAS_fusedSpeedLimit = self._convert_to_DAS_fusedSpeedLimit(self.speed_limit_ms * map_speed_ms_to_uom, speed_limit_type)
-    
+
     if self.DAS_fusedSpeedLimit > 1:
       self.fleet_speed_state = 2
     else:
@@ -378,7 +378,7 @@ class CarState(CarStateBase):
         event.type = button.event_type
         event.pressed = state
         buttonEvents.append(event)
-      self.button_states[button.event_type] = state 
+      self.button_states[button.event_type] = state
     ret.buttonEvents = buttonEvents
 
     # Doors
@@ -395,8 +395,8 @@ class CarState(CarStateBase):
     ret.leftBlinker = (cp.vl["GTW_carState"]["BC_indicatorLStatus"] == 1) and (self.turnSignalStalkState == 0) and (self.tap_direction == 1)
     ret.rightBlinker = (cp.vl["GTW_carState"]["BC_indicatorRStatus"] == 1) and (self.turnSignalStalkState == 0) and (self.tap_direction == 2)
 
-    # Seatbelt
-    if (self.CP.carFingerprint in [CAR.AP1_MODELX]):
+    # Seatbelt jun
+    if (self.CP.carFingerprint in [CAR.AP1_MODELX,CAR.AP2_MODELX]):
       ret.seatbeltUnlatched = (cp.vl["RCM_status"]["RCM_buckleDriverStatus"] != 1)
     else:
       ret.seatbeltUnlatched = (cp.vl["SDM1"]["SDM_bcklDrivStatus"] != 1)
@@ -418,7 +418,7 @@ class CarState(CarStateBase):
     sw_a = copy.copy(cp.vl["STW_ACTN_RQ"])
     if sw_a is not None:
       self.msg_stw_actn_req = sw_a
-      
+
     # Gas pedal
     #BBTODO: in latest versions of code Tesla does not populate this field
     ret.gas = cp.vl["DI_torque1"]["DI_pedalPos"] / 100.0
@@ -450,7 +450,7 @@ class CarState(CarStateBase):
           self.pedal_interceptor_value2 = transform_pedal_to_di(cp_cam.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"])
           self.pedal_idx = cp_cam.vl["GAS_SENSOR"]["IDX"]
         ret.gas = self.pedal_interceptor_value/100.
-        ret.gasPressed = (self.pedal_interceptor_value > PEDAL_DI_PRESSED) 
+        ret.gasPressed = (self.pedal_interceptor_value > PEDAL_DI_PRESSED)
         if self.enableHAO and self.pcc_enabled:
           self.DAS_216_driverOverriding = 1 if ret.gasPressed else 0
           ret.gas = 0
@@ -459,11 +459,11 @@ class CarState(CarStateBase):
       #preAP stuff
       if self.enableHumanLongControl:
         self.enablePedal = (
-            self.enablePedalHardware and 
+            self.enablePedalHardware and
             (
-                CruiseState.is_off(self.cruise_state) or 
+                CruiseState.is_off(self.cruise_state) or
                 self.enablePedalOverCC
-            ) and 
+            ) and
             self.CP.openpilotLongitudinalControl
         )
         self.enableACC = (
@@ -474,12 +474,12 @@ class CarState(CarStateBase):
         self.enableJustCC = (not (
             self.enableACC or
             self.enablePedal
-        )) and CruiseState.is_enabled_or_standby(self.cruise_state) 
+        )) and CruiseState.is_enabled_or_standby(self.cruise_state)
         if self.cruise_buttons == CruiseButtons.MAIN:
           self.cruiseEnabled = not self.enableJustCC
         if self.cruise_buttons == CruiseButtons.CANCEL:
           self.cruiseEnabled = False
-          
+
         ret.cruiseState.enabled = self.cruiseEnabled and (not ret.doorOpen) and (ret.gearShifter == car.CarState.GearShifter.drive) and (not ret.seatbeltUnlatched)
         self.cruiseEnabled = ret.cruiseState.enabled
         ret.cruiseState.available = True
@@ -578,7 +578,7 @@ class CarState(CarStateBase):
       ("STW_ANGLHP_STAT", 20),
       ("DI_state", 10),
       ("STW_ACTN_RQ", 10),
-      ("GTW_carState", 10),     
+      ("GTW_carState", 10),
     ]
 
     signals += [
@@ -593,7 +593,7 @@ class CarState(CarStateBase):
       ("ESP_B", 50),
       ("BrakeMessage", 50),
     ]
-    
+
     if not (CP.carFingerprint in [CAR.AP1_MODELX]):
       signals += [
         ("SDM_bcklDrivStatus", "SDM1", 0),
@@ -603,7 +603,7 @@ class CarState(CarStateBase):
         #("SDM1", 10),
       ]
 
-    if (CP.carFingerprint in [CAR.AP1_MODELX]):
+    if (CP.carFingerprint in [CAR.AP1_MODELX,CAR.AP2_MODELX]):
       signals += [
         ("RCM_buckleDriverStatus","RCM_status",0),
       ]
@@ -639,7 +639,7 @@ class CarState(CarStateBase):
       ("PARK_sdiBlindSpotLeft","PARK_status2",0),
     ]
 
-    checks += [      
+    checks += [
       ("EPAS_sysStatus", 5),
       #("PARK_status2",4),
     ]
@@ -676,7 +676,7 @@ class CarState(CarStateBase):
     pedalcanzero = load_bool_param("TinklaPedalCanZero",False)
     signals = []
     checks = []
-    
+
     if CP.carFingerprint in [CAR.AP1_MODELS, CAR.AP2_MODELS, CAR.AP1_MODELX]:
       signals = [
         # sig_name, sig_address, default

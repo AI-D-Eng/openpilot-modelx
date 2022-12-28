@@ -134,8 +134,8 @@ class CarInterface(CarInterfaceBase):
             safetyParam = safetyParam | Panda.FLAG_TESLA_LONG_CONTROL
 
         # jun 2017
-        #if candidate in(CAR.AP2_MODELS,CAR.AP2_MODELX):
-        if candidate == CAR.AP2_MODELS:
+        if candidate in(CAR.AP2_MODELS,CAR.AP2_MODELX):
+        #if candidate == CAR.AP2_MODELS:
             # Check if we have messages on an auxiliary panda, and that 0x2bf (DAS_control) is present on the AP powertrain bus
             # If so, we assume that it is connected to the longitudinal harness.
             if (CAN_AP_POWERTRAIN[candidate] in fingerprint.keys()) and (0x2bf in fingerprint[CAN_AP_POWERTRAIN[candidate]].keys()):
