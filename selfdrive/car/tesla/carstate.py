@@ -677,7 +677,7 @@ class CarState(CarStateBase):
     signals = []
     checks = []
 
-    if CP.carFingerprint in [CAR.AP1_MODELS, CAR.AP2_MODELS, CAR.AP1_MODELX]:
+    if CP.carFingerprint in [CAR.AP1_MODELS, CAR.AP2_MODELS,CAR.AP2_MODELX, CAR.AP1_MODELX]:
       signals = [
         # sig_name, sig_address, default
         #we need the steering control counter

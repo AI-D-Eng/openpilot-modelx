@@ -31,6 +31,7 @@ if __name__ == "__main__":
   poller = messaging.Poller()
 
   for m in args.socket if len(args.socket) > 0 else service_list:
+    m = m.replace("/dev/shm/","")
     messaging.sub_sock(m, poller, addr=args.addr)
 
   values = None

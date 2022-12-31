@@ -22,7 +22,7 @@ class CarController():
     self.long_control_counter = 0
 
     #initialize modules
-    
+
     self.hud_controller = HUDController(CP,self.packer,self.tesla_can)
     pedalcan = 2
     if load_bool_param("TinklaPedalCanZero", False):
@@ -33,17 +33,17 @@ class CarController():
     self.cruiseDelayFrame = 0
     self.prevCruiseEnabled = False
 
-    self.lP = messaging.sub_sock('longitudinalPlan') 
-    self.rS = messaging.sub_sock('radarState') 
+    self.lP = messaging.sub_sock('longitudinalPlan')
+    self.rS = messaging.sub_sock('radarState')
     self.mD = messaging.sub_sock('modelV2')
     self.cS = messaging.sub_sock('controlsState')
 
-    self.long_control_counter = 0 
-    
-  
+    self.long_control_counter = 0
+
+
   #def update(self, c, enabled, CS, frame, actuators, cruise_cancel):
   def update(self, c, enabled, CS, frame, actuators, cruise_cancel, pcm_speed, pcm_override, hud_alert, audible_alert,
-             left_line, right_line, lead, left_lane_depart, right_lane_depart): 
+             left_line, right_line, lead, left_lane_depart, right_lane_depart):
     if frame % 100 == 0:
       CS.autoresumeAcc = load_bool_param("TinklaAutoResumeACC",False)
     can_sends = []
@@ -79,7 +79,7 @@ class CarController():
     if ((frame % 10) == 0 and cruise_cancel):
       stlk_counter = ((CS.msg_stw_actn_req['MC_STW_ACTN_RQ'] + 1) % 16)
       can_sends.insert(0,self.tesla_can.create_action_request(CS.msg_stw_actn_req, CruiseButtons.CANCEL, CAN_CHASSIS[self.CP.carFingerprint],stlk_counter))
-      if (self.CP.carFingerprint in [CAR.AP1_MODELS,CAR.AP2_MODELS]):
+      if (self.CP.carFingerprint in [CAR.AP1_MODELS,CAR.AP2_MODELS,CAR.AP2_MODELX]):
         can_sends.insert(1,self.tesla_can.create_action_request(CS.msg_stw_actn_req, CruiseButtons.CANCEL, CAN_AUTOPILOT[self.CP.carFingerprint],stlk_counter))
 
     #now process controls
@@ -119,5 +119,5 @@ class CarController():
 
     new_actuators = actuators.copy()
     new_actuators.steeringAngleDeg = apply_angle
-    
+
     return new_actuators, can_sends
