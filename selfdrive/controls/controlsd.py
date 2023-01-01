@@ -280,6 +280,8 @@ class Controls:
         self.logged_comm_issue = True
     else:
       self.logged_comm_issue = False
+    # jun
+      self.logged_comm_issue = False
 
     if not self.sm['liveParameters'].valid:
       self.events.add(EventName.vehicleModelInvalid)

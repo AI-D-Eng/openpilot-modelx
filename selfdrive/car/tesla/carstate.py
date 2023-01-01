@@ -761,5 +761,5 @@ class CarState(CarStateBase):
         checks += [
           ("GAS_SENSOR", 0)
         ]
-
+    # jun
     return CANParser(DBC[CP.carFingerprint]['chassis'], signals, checks, 2,enforce_checks=False)
