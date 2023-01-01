@@ -71,7 +71,7 @@ CAN_CHASSIS = {
 }
 
 CAN_RADAR = {
-  CAR.AP2_MODELX: 1,
+  CAR.AP2_MODELX: 0,
   CAR.AP2_MODELS: 1,
   CAR.AP1_MODELS: 1,
   CAR.PREAP_MODELS: 1,
@@ -129,7 +129,7 @@ WHEEL_RADIUS = 0.353
 class CANBUS:
   # Lateral harness
   chassis = 0
-  radar = 1
+  radar = 0
   autopilot_chassis = 0
 
   # Longitudinal harness
